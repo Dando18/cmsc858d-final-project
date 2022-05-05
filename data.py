@@ -12,7 +12,7 @@ def get_mouse_exon_dataset():
     PKL_FPATH = './data/mouse-exon.pkl'
 
     if os.path.isfile(PKL_FPATH):
-        dataset = pickle.load(PKL_FPATH)
+        dataset = pickle.load(open(PKL_FPATH, 'rb'))
     else:
         fnames = ['./data/mouse_VISp_2018-06-14_exon-matrix.csv', 
             './data/mouse_ALM_2018-06-14_exon-matrix.csv']
@@ -49,8 +49,15 @@ def get_mouse_exon_dataset():
         areas = (indices < datasets[0][2].size).astype(int)
         clusters -= 1
 
+        markers = ['Snap25','Gad1','Slc17a7','Pvalb', 'Sst', 'Vip', 'Aqp4', 
+           'Mog', 'Itgam', 'Pdgfra', 'Flt1', 'Bgn', 'Rorb', 'Foxp2']
+        markerSubset = rnaseqTools.geneSelection(
+            counts, n=3000, threshold=32, 
+            markers=markers, genes=genes)
+
         dataset = {'counts': counts, 'genes': genes, 'clusters': clusters, 'areas': areas, 
-                'clusterColors': clusterColors, 'clusterNames': clusterNames}
+                'clusterColors': clusterColors, 'clusterNames': clusterNames,
+                'markerSubset': markerSubset}
         
         pickle.dump(dataset, open(PKL_FPATH, 'wb'))
     
