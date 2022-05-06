@@ -1,8 +1,10 @@
 ipykernel
-scipy==1.8.0
-numpy>=1.16.6
-pandas>=0.23
-scikit-learn>=0.2
+wheel
+scipy
+numpy<1.22
+pandas
+scikit-learn
 matplotlib
-seaborn==0.11.2
+seaborn
 opentsne==0.6.2
+umap-learn==0.5.3
