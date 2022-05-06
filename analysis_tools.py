@@ -1,54 +1,19 @@
 import numpy as np
 
 def preprocess(X, normalize=True, subsets=None):
+    magnitudes = np.sum(X, axis=1)
+
     if subsets is not None:
         X = X[:, subsets]
 
     if normalize:
-        magnitudes = np.sum(X, axis=1)
         X = np.log2(X / magnitudes * 1e+6 + 1)
         X = np.array(X)
+        X -= X.mean(axis=0)
+
+        U,s,V = np.linalg.svd(X, full_matrices=False)
+        U[:, np.sum(V,axis=1)<0] *= -1
+        X = np.dot(U, np.diag(s))
+        X = X[:, np.argsort(s)[::-1]][:,:50]
     
     return X
-
-# from repo
-def embedding_quality(X, Z, classes, knn=10, knn_classes=10, subsetsize=1000):
-    from sklearn.neighbors import NearestNeighbors
-    from scipy.spatial.distance import pdist
-
-
-    nbrs1 = NearestNeighbors(n_neighbors=knn).fit(X)
-    ind1 = nbrs1.kneighbors(return_distance=False)
-
-    nbrs2 = NearestNeighbors(n_neighbors=knn).fit(Z)
-    ind2 = nbrs2.kneighbors(return_distance=False)
-
-    intersections = 0.0
-    for i in range(X.shape[0]):
-        intersections += len(set(ind1[i]) & set(ind2[i]))
-    mnn = intersections / X.shape[0] / knn
-    
-    cl, cl_inv = np.unique(classes, return_inverse=True)
-    C = cl.size
-    mu1 = np.zeros((C, X.shape[1]))
-    mu2 = np.zeros((C, Z.shape[1]))
-    for c in range(C):
-        mu1[c,:] = np.mean(X[cl_inv==c,:], axis=0)
-        mu2[c,:] = np.mean(Z[cl_inv==c,:], axis=0)
-        
-    nbrs1 = NearestNeighbors(n_neighbors=knn_classes).fit(mu1)
-    ind1 = nbrs1.kneighbors(return_distance=False)
-    nbrs2 = NearestNeighbors(n_neighbors=knn_classes).fit(mu2)
-    ind2 = nbrs2.kneighbors(return_distance=False)
-    
-    intersections = 0.0
-    for i in range(C):
-        intersections += len(set(ind1[i]) & set(ind2[i]))
-    mnn_global = intersections / C / knn_classes
-    
-    subset = np.random.choice(X.shape[0], size=subsetsize, replace=False)
-    d1 = pdist(X[subset,:])
-    d2 = pdist(Z[subset,:])
-    rho = scipy.stats.spearmanr(d1[:,None],d2[:,None]).correlation
-    
-    return (mnn, mnn_global, rho)
