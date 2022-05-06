@@ -1,4 +1,9 @@
 *.pyc
 __pycache__
 venv
+.ipynb_checkpoints
+
 log.txt
+figures/*
+data/*
+pickles/*
