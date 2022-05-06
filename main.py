@@ -1,5 +1,7 @@
 from data import get_dataset
 from dim_reduce import get_dim_reduction
+from analysis_tools import preprocess
+from metrics import knn_score
 
 from argparse import ArgumentParser
 import logging
@@ -22,9 +24,15 @@ def main():
     logging.info('Reading in dataset...')
     dataset = get_dataset(args.dataset)
 
-    logging.info('Doing dimensionality reduction...')
-    reduced = get_dim_reduction(dataset, algorithm=args.algorithm)
+    logging.info('Preprocessing...')
+    X = preprocess(dataset['counts'], normalize=True, subsets=dataset['markerSubset'])
 
+    logging.info('Doing dimensionality reduction...')
+    reduced = get_dim_reduction(X, algorithm=args.algorithm)
+
+    logging.info('Calculating metrics...')
+    k_score = knn_score(X, reduced, k=10)
+    print(k_score)
 
 
 if __name__ == '__main__':
