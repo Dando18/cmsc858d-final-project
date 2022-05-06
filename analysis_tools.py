@@ -1,9 +1,22 @@
-from sklearn.neighbors import NearestNeighbors
-from scipy.spatial.distance import pdist
+import numpy as np
+
+def preprocess(X, normalize=True, subsets=None):
+    if subsets is not None:
+        X = X[:, subsets]
+
+    if normalize:
+        magnitudes = np.sum(X, axis=1)
+        X = np.log2(X / magnitudes * 1e+6 + 1)
+        X = np.array(X)
+    
+    return X
 
 # from repo
-
 def embedding_quality(X, Z, classes, knn=10, knn_classes=10, subsetsize=1000):
+    from sklearn.neighbors import NearestNeighbors
+    from scipy.spatial.distance import pdist
+
+
     nbrs1 = NearestNeighbors(n_neighbors=knn).fit(X)
     ind1 = nbrs1.kneighbors(return_distance=False)
 
