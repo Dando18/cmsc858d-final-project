@@ -12,14 +12,21 @@ def get_dim_reduction(X, algorithm='pca', **kwargs):
         raise NotImplementedError('{} not supported yet.'.format(algorithm))
 
 
-def pca(ds):
+def pca(X):
     ''' Compute the pca dim reduction
     '''
-    raise NotImplementedError('pca not supported yet.')
+    from sklearn.decomposition import PCA
+
+    model = PCA(n_components=2, whiten=False)
+    reduced_data = model.fit_transform(X)
+
+    return reduced_data
 
 
-def tsne(X, perplexity=30, learning_rate='auto', init='random'):
+def tsne(X, perplexity=30, learning_rate='auto', init='random', metric='euclidean'):
     ''' Compute the t-SNE dimensionality reduction.
+        openTSNE API: https://opentsne.readthedocs.io/en/latest/api/index.html
+        metrics:  "cosine", "euclidean", "manhattan", "hamming", "dot", "l1", "l2", "taxicab"
     '''
     from openTSNE import TSNE
 
