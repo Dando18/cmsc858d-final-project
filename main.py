@@ -53,7 +53,7 @@ def main():
         with open(args.output, mode) as fp:
             if mode == 'w':
                 fp.write(header)
-            fp.write(','.join(cols))
+            fp.write(','.join(map(str, cols)))
 
 
 if __name__ == '__main__':
