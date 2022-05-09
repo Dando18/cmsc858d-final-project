@@ -56,7 +56,7 @@ def densne(X):
     sys.path.append('./densvis/densne')
     from densne import run_densne
     
-    reduced_data = run_densne(X, verbose=True, final_dens=False)
+    reduced_data = run_densne(X, verbose=False, final_dens=False)
 
     return reduced_data
 
