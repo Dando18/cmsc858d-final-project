@@ -14,7 +14,7 @@ def main():
     parser.add_argument('--log', choices=['INFO', 'DEBUG', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO', 
         type=str.upper, help='logging level')
     parser.add_argument('-d', '--dataset', type=str, choices=['synthetic', 'mouse-exon'])
-    parser.add_argument('-a', '--algorithm', type=str, default='pca', choices=['pca', 'tsne', 'umap', 'hsne', 'densne', 'denmap'])
+    parser.add_argument('-a', '--algorithm', type=str, default='pca', choices=['pca', 'tsne', 'umap', 'hsne', 'densne', 'densmap'])
     parser.add_argument('-o', '--output', help='output csv location')
     args = parser.parse_args()
 
