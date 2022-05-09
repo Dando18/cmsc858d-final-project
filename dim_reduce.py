@@ -2,7 +2,8 @@ import numpy as np
 
 def get_dim_reduction(X, algorithm='pca', **kwargs):
     algorithm = algorithm.lower()
-    func_map = {'pca': pca, 'tsne': tsne, 'umap': umap, 'densne': densne, 'densmap': densmap}
+    func_map = {'pca': pca, 'tsne': tsne, 'umap': umap, 'densne': densne, 
+                'densmap': densmap, 'scvis': scvis, 'netsne': netsne, 'hsne': hsne}
 
     if algorithm in func_map:
         return func_map[algorithm](X, **kwargs)
@@ -69,3 +70,19 @@ def densmap(X, n_neighbors=15, metric='euclidean'):
     reduced_data = model.fit_transform(X)
 
     return reduced_data
+
+def scvis(X):
+    ''' scvis repo: https://github.com/shahcompbio/scvis
+    '''
+    from scvis.run import train
+
+
+def netsne(X):
+    '''
+    '''
+    pass
+
+def hsne(X):
+    '''
+    '''
+    pass

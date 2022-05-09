@@ -14,7 +14,7 @@ def main():
     parser.add_argument('--log', choices=['INFO', 'DEBUG', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO', 
         type=str.upper, help='logging level')
     parser.add_argument('-d', '--dataset', type=str, choices=['synthetic', 'mouse-exon'])
-    parser.add_argument('-a', '--algorithm', type=str, default='pca', choices=['pca', 'tsne', 'umap', 'hsne', 'densne', 'densmap'])
+    parser.add_argument('-a', '--algorithm', type=str, default='pca', choices=['pca', 'tsne', 'umap', 'hsne', 'densne', 'densmap', 'scvis', 'netsne'])
     parser.add_argument('-o', '--output', help='output csv location')
     args = parser.parse_args()
 
@@ -25,10 +25,16 @@ def main():
         filename='log.txt', filemode='w', level=numeric_level)
 
     logging.info('Reading in dataset...')
+    start = time.time()
     dataset = get_dataset(args.dataset)
+    duration = time.time() - start
+    logging.info('Finished reading dataset in {} seconds.'.format(duration))
 
     logging.info('Preprocessing...')
+    start = time.time()
     X = preprocess(dataset['counts'], normalize=True, subsets=dataset['markerSubset'])
+    duration = time.time() - start
+    logging.info('Finished preprocessing in {} seconds.'.format(duration))
 
     logging.info('Doing dimensionality reduction...')
     start = time.time()
@@ -37,9 +43,12 @@ def main():
     logging.info('Finished dimensionality reduction in {} seconds.'.format(duration))
 
     logging.info('Calculating metrics...')
+    start = time.time()
     knn = knn_score(X, reduced, k=10)
-    knc = knc_score(X, reduced, dataset['clusters'], k=10)
+    knc = knc_score(X, reduced, dataset['clusters'], k=10) if 'clusters' in dataset else None
     cpd = cpd_score(X, reduced, subset_size=1000)
+    duration = time.time() - start
+    logging.info('Finished calculating metrics in {} seconds.'.format(duration))
 
     header = 'dataset,algorithm,duration,knn_score,knc_score,cpd_score'
     cols = [args.dataset, args.algorithm, duration, knn, knc, cpd]
