@@ -2,7 +2,7 @@ import numpy as np
 
 def get_dim_reduction(X, algorithm='pca', **kwargs):
     algorithm = algorithm.lower()
-    func_map = {'pca': pca, 'tsne': tsne, 'umap': umap, 'densmap': densmap}
+    func_map = {'pca': pca, 'tsne': tsne, 'umap': umap, 'densne': densne, 'densmap': densmap}
 
     if algorithm in func_map:
         return func_map[algorithm](X, **kwargs)
@@ -44,6 +44,17 @@ def umap(X, n_neighbors=15, metric='euclidean'):
 
     model = UMAP(n_neighbors=n_neighbors, metric=metric)
     reduced_data = model.fit_transform(X)
+
+    return reduced_data
+
+def densne(X):
+    ''' densne API: https://github.com/hhcho/densvis/tree/master/densne
+    '''
+    import sys
+    sys.path.append('./densvis/densne')
+    from densne import run_densne
+    
+    reduced_data = run_densne(X, final_dens=False)
 
     return reduced_data
 
