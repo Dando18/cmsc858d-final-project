@@ -1,13 +1,11 @@
 import numpy as np
 
 def get_dim_reduction(X, algorithm='pca', **kwargs):
+    algorithm = algorithm.lower()
+    func_map = {'pca': pca, 'tsne': tsne, 'umap': umap, 'densmap': densmap}
 
-    if algorithm == 'pca':
-        return pca(X, **kwargs)
-    elif algorithm == 'tsne':
-        return tsne(X, **kwargs)
-    elif algorithm == 'umap':
-        return umap(X, **kwargs)
+    if algorithm in func_map:
+        return func_map[algorithm](X, **kwargs)
     else:
         raise NotImplementedError('{} not supported yet.'.format(algorithm))
 
@@ -45,6 +43,16 @@ def umap(X, n_neighbors=15, metric='euclidean'):
     from umap import UMAP
 
     model = UMAP(n_neighbors=n_neighbors, metric=metric)
+    reduced_data = model.fit_transform(X)
+
+    return reduced_data
+
+def densmap(X, n_neighbors=15, metric='euclidean'):
+    ''' UMAP API: https://umap-learn.readthedocs.io/en/latest/api.html
+    '''
+    from umap import UMAP
+
+    model = UMAP(densmap=True, n_neighbors=n_neighbors, metric=metric)
     reduced_data = model.fit_transform(X)
 
     return reduced_data
