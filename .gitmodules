@@ -1,3 +1,6 @@
 [submodule "densvis"]
 	path = densvis
 	url = https://github.com/hhcho/densvis
+[submodule "scvis"]
+	path = scvis
+	url = https://github.com/shahcompbio/scvis
