@@ -49,12 +49,14 @@ def umap(X, n_neighbors=15, metric='euclidean'):
 
 def densne(X):
     ''' densne API: https://github.com/hhcho/densvis/tree/master/densne
+        Run following command in densvis/densne subdirectory first.
+            g++ sptree.cpp densne.cpp densne_main.cpp -o den_sne -O2
     '''
     import sys
     sys.path.append('./densvis/densne')
     from densne import run_densne
     
-    reduced_data = run_densne(X, final_dens=False)
+    reduced_data = run_densne(X, verbose=True, final_dens=False)
 
     return reduced_data
 
