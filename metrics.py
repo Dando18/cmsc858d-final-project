@@ -1,4 +1,4 @@
-
+import numpy as np
 
 def knn_score(X, Z, k=10):
     from sklearn.neighbors import NearestNeighbors
@@ -9,10 +9,6 @@ def knn_score(X, Z, k=10):
     Z_neighbors = NearestNeighbors(n_neighbors=k).fit(Z)
     Z_indices = Z_neighbors.kneighbors(return_distance=False)
 
-    #intersections = sum(
-    #    map(lambda i: len(set(X_indices[i]) & set(Z_indices[i])), range(X.shape[0]))
-    #    )
-
     intersections = 0.0
     for i in range(X.shape[0]):
         intersections += len(set(X_indices[i]) & set(Z_indices[i]))
@@ -20,44 +16,38 @@ def knn_score(X, Z, k=10):
     return intersections
 
 
-# from repo
-def embedding_quality(X, Z, classes, knn=10, knn_classes=10, subsetsize=1000):
+def knc_score(X, Z, classes, k=10):
     from sklearn.neighbors import NearestNeighbors
+
+    unique_classes, unique_classes_inv = np.unique(classes, return_inverse=True)
+    num_unique_classes = unique_classes.size
+    X_class_means = np.zeros((num_unique_classes, X.shape[1]))
+    Z_class_means = np.zeros((num_unique_classes, Z.shape[1]))
+    for c in range(num_unique_classes):
+        X_class_means[c,:] = np.mean(X[unique_classes_inv==c,:], axis=0)
+        Z_class_means[c,:] = np.mean(Z[unique_classes_inv==c,:], axis=0)
+    
+    X_neighbors = NearestNeighbors(n_neighbors=k).fit(X_class_means)
+    X_indices = X_neighbors.kneighbors(return_distance=False)
+
+    Z_neighbors = NearestNeighbors(n_neighbors=k).fit(Z_class_means)
+    Z_indices = Z_neighbors.kneighbors(return_distance=False)
+
+    intersections = 0.0
+    for i in range(num_unique_classes):
+        intersections += len(set(X_indices[i]) & set(Z_indices[i]))
+    intersections = intersections / num_unique_classes / k
+
+    return intersections
+
+
+def cpd_score(X, Z, subset_size=1000):
+    from scipy.stats import spearmanr
     from scipy.spatial.distance import pdist
 
+    subsets = np.random.choice(X.shape[0], size=subset_size, replace=False)
+    X_distances = pdist(X[subsets,:])
+    Z_distances = pdist(Z[subsets,:])
 
-    nbrs1 = NearestNeighbors(n_neighbors=knn).fit(X)
-    ind1 = nbrs1.kneighbors(return_distance=False)
-
-    nbrs2 = NearestNeighbors(n_neighbors=knn).fit(Z)
-    ind2 = nbrs2.kneighbors(return_distance=False)
-
-    intersections = 0.0
-    for i in range(X.shape[0]):
-        intersections += len(set(ind1[i]) & set(ind2[i]))
-    mnn = intersections / X.shape[0] / knn
-    
-    cl, cl_inv = np.unique(classes, return_inverse=True)
-    C = cl.size
-    mu1 = np.zeros((C, X.shape[1]))
-    mu2 = np.zeros((C, Z.shape[1]))
-    for c in range(C):
-        mu1[c,:] = np.mean(X[cl_inv==c,:], axis=0)
-        mu2[c,:] = np.mean(Z[cl_inv==c,:], axis=0)
-        
-    nbrs1 = NearestNeighbors(n_neighbors=knn_classes).fit(mu1)
-    ind1 = nbrs1.kneighbors(return_distance=False)
-    nbrs2 = NearestNeighbors(n_neighbors=knn_classes).fit(mu2)
-    ind2 = nbrs2.kneighbors(return_distance=False)
-    
-    intersections = 0.0
-    for i in range(C):
-        intersections += len(set(ind1[i]) & set(ind2[i]))
-    mnn_global = intersections / C / knn_classes
-    
-    subset = np.random.choice(X.shape[0], size=subsetsize, replace=False)
-    d1 = pdist(X[subset,:])
-    d2 = pdist(Z[subset,:])
-    rho = scipy.stats.spearmanr(d1[:,None],d2[:,None]).correlation
-    
-    return (mnn, mnn_global, rho)
+    cpd = spearmanr(X_distances[:,None], Z_distances[:,None]).correlation
+    return cpd
