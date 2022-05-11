@@ -90,7 +90,7 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('--log', choices=['INFO', 'DEBUG', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO', 
         type=str.upper, help='logging level')
-    parser.add_argument('-d', '--dataset', type=str, choices=['synthetic', 'mouse-exon'])
+    parser.add_argument('-d', '--dataset', type=str, choices=['synthetic', 'pollen', 'mouse-exon'])
     parser.add_argument('-a', '--algorithm', type=str, default='pca', choices=['pca', 'tsne', 'umap', 'hsne', 'densne', 'densmap', 'scvis', 'netsne'])
     parser.add_argument('-p', '--params', type=str, help='parameters json file')
     parser.add_argument('-o', '--output', help='output csv location')
