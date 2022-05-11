@@ -108,13 +108,6 @@ def main():
     duration = time.time() - start
     logging.info('Finished reading dataset in {} seconds.'.format(duration))
 
-    #logging.info('Preprocessing...')
-    #start = time.time()
-    #X = preprocess(dataset['counts'], normalize=True, subsets=dataset['markerSubset'])
-    #X = dataset['counts']
-    #duration = time.time() - start
-    #logging.info('Finished preprocessing in {} seconds.'.format(duration))
-
     if args.params:
         run_experiments(dataset['X'], dataset, args)
     else:
