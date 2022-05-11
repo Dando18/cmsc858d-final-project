@@ -51,3 +51,50 @@ def cpd_score(X, Z, subset_size=1000):
 
     cpd = spearmanr(X_distances[:,None], Z_distances[:,None]).correlation
     return cpd
+
+
+def ari_score(X, Z, classes):
+    ''' Computes adjusted Rand index
+        see page 5 of https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6469860/pdf/nihms-1021959.pdf
+    '''
+    from sklearn.metrics import adjusted_rand_score
+    from sklearn.cluster import KMeans
+
+    # run k-means on the dataset
+    num_clusters = np.unique(classes).size
+    model = KMeans(n_clusters=num_clusters)
+    kmeans = model.fit(Z)
+
+    ari = adjusted_rand_score(classes, kmeans.labels_)
+
+    return ari
+
+
+def cs_score(X, Z, classes):
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.model_selection import cross_val_score, ShuffleSplit
+
+    model = RandomForestClassifier()
+    cv = ShuffleSplit(n_splits=3, test_size=0.4)
+    scores = cross_val_score(model, Z, classes, cv=cv)
+
+    return scores.mean()
+
+
+def pds_score(X, Z, sample_size=1000):
+    import random
+    from scipy.spatial.distance import pdist
+    from scipy.stats import linregress
+    from sklearn.metrics import r2_score
+
+    points = random.sample(list(zip(X, Z)), sample_size)
+    X_points, Z_points = [], []
+    for xp, zp in points:
+        X_points.append(xp)
+        Z_points.append(zp)
+    
+    X_distances = pdist(X_points)
+    Z_distances = pdist(Z_points)
+    
+    _, _, r_value, _, _ = linregress(X_distances, Z_distances)
+    return r_value**2
