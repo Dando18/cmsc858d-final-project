@@ -7,6 +7,7 @@ import pickle
 import logging
 
 import rnaseqTools
+from analysis_tools import preprocess
 
 def get_mouse_exon_dataset():
     PKL_FPATH = './data/mouse-exon.pkl'
@@ -59,6 +60,8 @@ def get_mouse_exon_dataset():
                 'clusterColors': clusterColors, 'clusterNames': clusterNames,
                 'markerSubset': markerSubset}
         
+        dataset['X'] = preprocess(dataset['counts'], normalize=True, subsets=dataset['markerSubset'])
+        
         pickle.dump(dataset, open(PKL_FPATH, 'wb'))
     
     logging.info('Read data size with size: {}'.format(dataset['counts'].shape))
@@ -68,23 +71,22 @@ def get_mouse_exon_dataset():
     return dataset
 
 
-def get_ca1_neurons():
+def get_ca1_neurons_dataset():
     PKL_FPATH = './data/mouse-ca1-neurons.pkl'
 
     if os.path.isfile(PKL_FPATH):
         dataset = pickle.load(open(PKL_FPATH, 'rb'))
     else:
         fname = './data/ca1-neurons/expressions.tsv'
-
         counts, genes, cells = rnaseqTools.sparseload(fname, sep='\t')
 
-        genesTable = pd.read_csv('./data/mouse_VISp_2018-06-14_genes-rows.csv')
-        ids = genesTable['gene_entrez_id'].tolist()
-        symbols = genesTable['gene_symbol'].tolist()
-        id2symbol = dict(zip(ids, symbols))
-        genes = np.array([id2symbol[g] for g in genes])
+        #genesTable = pd.read_csv('./data/mouse_VISp_2018-06-14_genes-rows.csv')
+        #ids = genesTable['gene_entrez_id'].tolist()
+        #symbols = genesTable['gene_symbol'].tolist()
+        #id2symbol = dict(zip(ids, symbols))
+        #genes = np.array([id2symbol[g] for g in genes])
 
-        clusterInfo = pd.read_csv('data/tasic-sample_heatmap_plot_data.csv')
+        clusterInfo = pd.read_csv('data/ca1-neurons/analysis_results.tsv')
         goodCells = clusterInfo['sample_name'].values
         ids = clusterInfo['cluster_id'].values
         labels = clusterInfo['cluster_label'].values
@@ -109,11 +111,12 @@ def get_ca1_neurons():
         dataset = {'counts': counts, 'genes': genes, 'clusters': clusters, 'areas': areas, 
                 'clusterColors': clusterColors, 'clusterNames': clusterNames,
                 'markerSubset': markerSubset}
+                
+        dataset['X'] = counts.values
         
         pickle.dump(dataset, open(PKL_FPATH, 'wb'))
     
     logging.info('Read data size with size: {}'.format(dataset['counts'].shape))
-    logging.info('Areas: {} {}'.format(np.sum(dataset['areas']==0), np.sum(dataset['areas']==1)))
     logging.info('Unique clusters: {}'.format(np.unique(dataset['clusters']).size))
 
     return dataset
@@ -138,12 +141,13 @@ def get_pollen_dataset():
 
         clusterColors = colors
         clusters = np.copy(ids)
-
         clusters -= 1
 
         dataset = {'counts': counts, 'genes': None, 'clusters': clusters, 'areas': None, 
                 'clusterColors': clusterColors, 'clusterNames': None,
                 'markerSubset': None}
+
+        dataset['X'] = counts.values
         
         pickle.dump(dataset, open(PKL_FPATH, 'wb'))
     
@@ -154,7 +158,11 @@ def get_pollen_dataset():
 
 
 def get_dataset(name):
-    if name == 'mouse-exon':
-        return get_mouse_exon_dataset()
-    elif name == 'pollen':
-        return get_pollen_dataset()
+    loaders = {'mouse-exon': get_mouse_exon_dataset, 'ca1-neurons': get_ca1_neurons_dataset,
+            'pollen': get_pollen_dataset}
+    
+    name = name.lower()
+    if name in loaders:
+        return loaders[name]()
+    else:
+        raise NotImplementedError('{} dataset not available.'.format(name))

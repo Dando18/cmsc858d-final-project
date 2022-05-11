@@ -90,7 +90,7 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('--log', choices=['INFO', 'DEBUG', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO', 
         type=str.upper, help='logging level')
-    parser.add_argument('-d', '--dataset', type=str, choices=['synthetic', 'pollen', 'mouse-exon'])
+    parser.add_argument('-d', '--dataset', type=str, choices=['synthetic', 'pollen', 'mouse-exon', 'ca1-neurons'])
     parser.add_argument('-a', '--algorithm', type=str, default='pca', choices=['pca', 'tsne', 'umap', 'hsne', 'densne', 'densmap', 'scvis', 'netsne'])
     parser.add_argument('-p', '--params', type=str, help='parameters json file')
     parser.add_argument('-o', '--output', help='output csv location')
@@ -108,16 +108,17 @@ def main():
     duration = time.time() - start
     logging.info('Finished reading dataset in {} seconds.'.format(duration))
 
-    logging.info('Preprocessing...')
-    start = time.time()
-    X = preprocess(dataset['counts'], normalize=True, subsets=dataset['markerSubset'])
-    duration = time.time() - start
-    logging.info('Finished preprocessing in {} seconds.'.format(duration))
+    #logging.info('Preprocessing...')
+    #start = time.time()
+    #X = preprocess(dataset['counts'], normalize=True, subsets=dataset['markerSubset'])
+    #X = dataset['counts']
+    #duration = time.time() - start
+    #logging.info('Finished preprocessing in {} seconds.'.format(duration))
 
     if args.params:
-        run_experiments(X, dataset, args)
+        run_experiments(dataset['X'], dataset, args)
     else:
-        run_single_test(X, dataset, args)
+        run_single_test(dataset['X'], dataset, args)
 
 
 if __name__ == '__main__':
