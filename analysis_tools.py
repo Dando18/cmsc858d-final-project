@@ -2,6 +2,8 @@ import numpy as np
 
 def preprocess(X, normalize=True, subsets=None):
     magnitudes = np.sum(X, axis=1)
+    if len(magnitudes.shape) == 1:
+        magnitudes = np.expand_dims(magnitudes, axis=1)
 
     if subsets is not None:
         X = X[:, subsets]
