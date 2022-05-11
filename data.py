@@ -67,52 +67,33 @@ def get_mouse_exon_dataset():
     logging.info('Read data size with size: {}'.format(dataset['counts'].shape))
     logging.info('Areas: {} {}'.format(np.sum(dataset['areas']==0), np.sum(dataset['areas']==1)))
     logging.info('Unique clusters: {}'.format(np.unique(dataset['clusters']).size))
-
     return dataset
 
 
 def get_ca1_neurons_dataset():
+    from seaborn import color_palette
+
     PKL_FPATH = './data/mouse-ca1-neurons.pkl'
 
     if os.path.isfile(PKL_FPATH):
         dataset = pickle.load(open(PKL_FPATH, 'rb'))
     else:
-        fname = './data/ca1-neurons/expressions.tsv'
+        fname = './data/ca1-neurons/expression.tsv'
         counts, genes, cells = rnaseqTools.sparseload(fname, sep='\t')
 
-        #genesTable = pd.read_csv('./data/mouse_VISp_2018-06-14_genes-rows.csv')
-        #ids = genesTable['gene_entrez_id'].tolist()
-        #symbols = genesTable['gene_symbol'].tolist()
-        #id2symbol = dict(zip(ids, symbols))
-        #genes = np.array([id2symbol[g] for g in genes])
+        clusterInfo = pd.read_csv('data/ca1-neurons/analysis_results.tsv', sep='\t', index_col=0)
+        ids = clusterInfo.transpose()['Class'].dropna().values
 
-        clusterInfo = pd.read_csv('data/ca1-neurons/analysis_results.tsv')
-        goodCells = clusterInfo['sample_name'].values
-        ids = clusterInfo['cluster_id'].values
-        labels = clusterInfo['cluster_label'].values
-        colors = clusterInfo['cluster_color'].values
+        clusterNames = np.array(ids)
+        clusters = pd.factorize(ids)[0].astype(np.int)
+        clusterColors = np.array(color_palette(None, np.max(clusters)+1).as_hex())
 
-        clusterNames = np.array([labels[ids==i+1][0] for i in range(np.max(ids))])
-        clusterColors = np.array([colors[ids==i+1][0] for i in range(np.max(ids))])
-        clusters = np.copy(ids)
-
-        indices = np.array([np.where(cells==c)[0][0] for c in goodCells])
-        counts = counts[indices, :]
-
-        areas = (indices < datasets[0][2].size).astype(int)
-        clusters -= 1
-
-        markers = ['Snap25','Gad1','Slc17a7','Pvalb', 'Sst', 'Vip', 'Aqp4', 
-           'Mog', 'Itgam', 'Pdgfra', 'Flt1', 'Bgn', 'Rorb', 'Foxp2']
-        markerSubset = rnaseqTools.geneSelection(
-            counts, n=3000, threshold=32, 
-            markers=markers, genes=genes)
-
-        dataset = {'counts': counts, 'genes': genes, 'clusters': clusters, 'areas': areas, 
+        dataset = {'counts': counts, 'genes': genes, 'clusters': clusters, 'areas': None, 
                 'clusterColors': clusterColors, 'clusterNames': clusterNames,
-                'markerSubset': markerSubset}
-                
-        dataset['X'] = counts.values
+                'markerSubset': None}
+
+        X = np.array(counts.todense())[0:-1,:]
+        dataset['X'] = X #preprocess(X, normalize=True, subsets=dataset['markerSubset'])
         
         pickle.dump(dataset, open(PKL_FPATH, 'wb'))
     
