@@ -1,12 +1,12 @@
 import numpy as np
 
-def knn_score(X, Z, k=10):
+def knn_score(X, Z, k=10, metric='euclidean'):
     from sklearn.neighbors import NearestNeighbors
 
-    X_neighbors = NearestNeighbors(n_neighbors=k).fit(X)
+    X_neighbors = NearestNeighbors(n_neighbors=k, metric=metric).fit(X)
     X_indices = X_neighbors.kneighbors(return_distance=False)
 
-    Z_neighbors = NearestNeighbors(n_neighbors=k).fit(Z)
+    Z_neighbors = NearestNeighbors(n_neighbors=k, metric=metric).fit(Z)
     Z_indices = Z_neighbors.kneighbors(return_distance=False)
 
     intersections = 0.0
@@ -16,7 +16,7 @@ def knn_score(X, Z, k=10):
     return intersections
 
 
-def knc_score(X, Z, classes, k=10):
+def knc_score(X, Z, classes, k=10, metric='euclidean'):
     from sklearn.neighbors import NearestNeighbors
 
     unique_classes, unique_classes_inv = np.unique(classes, return_inverse=True)
@@ -27,10 +27,10 @@ def knc_score(X, Z, classes, k=10):
         X_class_means[c,:] = np.mean(X[unique_classes_inv==c,:], axis=0)
         Z_class_means[c,:] = np.mean(Z[unique_classes_inv==c,:], axis=0)
     
-    X_neighbors = NearestNeighbors(n_neighbors=k).fit(X_class_means)
+    X_neighbors = NearestNeighbors(n_neighbors=k, metric=metric).fit(X_class_means)
     X_indices = X_neighbors.kneighbors(return_distance=False)
 
-    Z_neighbors = NearestNeighbors(n_neighbors=k).fit(Z_class_means)
+    Z_neighbors = NearestNeighbors(n_neighbors=k, metric=metric).fit(Z_class_means)
     Z_indices = Z_neighbors.kneighbors(return_distance=False)
 
     intersections = 0.0
@@ -41,16 +41,19 @@ def knc_score(X, Z, classes, k=10):
     return intersections
 
 
-def cpd_score(X, Z, subset_size=1000):
+def cpd_score(X, Z, subset_size=1000, metric='euclidean'):
     from scipy.stats import spearmanr
     from scipy.spatial.distance import pdist
+
+    if metric == 'l1':
+        metric = 'cityblock'
 
     if subset_size > X.shape[0]:
         subset_size = X.shape[0]
 
     subsets = np.random.choice(X.shape[0], size=subset_size, replace=False)
-    X_distances = pdist(X[subsets,:])
-    Z_distances = pdist(Z[subsets,:])
+    X_distances = pdist(X[subsets,:], metric=metric)
+    Z_distances = pdist(Z[subsets,:], metric=metric)
 
     cpd = spearmanr(X_distances[:,None], Z_distances[:,None]).correlation
     return cpd
@@ -84,11 +87,14 @@ def cs_score(X, Z, classes):
     return scores.mean()
 
 
-def pds_score(X, Z, sample_size=1000):
+def pds_score(X, Z, sample_size=1000, metric='euclidean'):
     import random
     from scipy.spatial.distance import pdist
     from scipy.stats import linregress
     from sklearn.metrics import r2_score
+
+    if metric == 'l1':
+        metric = 'cityblock'
 
     if sample_size > X.shape[0]:
         sample_size = X.shape[0]-1
@@ -99,8 +105,11 @@ def pds_score(X, Z, sample_size=1000):
         X_points.append(xp)
         Z_points.append(zp)
     
-    X_distances = pdist(X_points)
-    Z_distances = pdist(Z_points)
+    X_distances = pdist(X_points, metric=metric)
+    Z_distances = pdist(Z_points, metric=metric)
     
-    _, _, r_value, _, _ = linregress(X_distances, Z_distances)
+    try:
+        _, _, r_value, _, _ = linregress(X_distances, Z_distances)
+    except ValueError:
+        return 0
     return r_value**2

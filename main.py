@@ -9,15 +9,20 @@ from itertools import product
 import json
 import logging
 import os.path
+from pathlib import Path
 import time
 
 import pandas as pd
 
 
 def run_single_test(X, dataset, args):
+    dim_kwargs = {}
+    if args.algorithm in ['lda']:
+        dim_kwargs['classes'] = dataset['clusters']
+
     logging.info('Doing dimensionality reduction...')
     start = time.time()
-    reduced = get_dim_reduction(X, algorithm=args.algorithm)
+    reduced = get_dim_reduction(X, algorithm=args.algorithm, **dim_kwargs)
     duration = time.time() - start
     logging.info('Finished dimensionality reduction in {} seconds.'.format(duration))
 
@@ -61,6 +66,8 @@ def run_experiments(X, dataset, args):
     test_params = list((dict(zip(params.keys(), values)) for values in product(*params.values())))
     results = []
 
+    eval_dist_metric = 'euclidean'
+
     logging.info('Starting experiment...')
     for idx, p in enumerate(test_params):
         if idx % 10 == 0 and idx != 0:
@@ -68,18 +75,34 @@ def run_experiments(X, dataset, args):
             tmp_df = pd.DataFrame(results)
             tmp_df.to_csv('results.csv')
 
+        if 'eval_dist_metric' in p:
+            eval_dist_metric = p['eval_dist_metric']
+            del p['eval_dist_metric']
+
         start = time.time()
-        reduced = get_dim_reduction(X, algorithm=args.algorithm, **p)
+        reduced = get_dim_reduction(X, **p)
         duration = time.time() - start
 
-        result = p
+        result = p.copy()
         result['dataset'] = args.dataset
-        result['algorithm'] = args.algorithm
+        result['algorithm'] = p['algorithm']
         result['duration'] = duration
-        result['knn'] = knn_score(X, reduced, k=10)
-        result['knc'] = knc_score(X, reduced, dataset['clusters'], k=10) if 'clusters' in dataset else None
-        result['cpd'] = cpd_score(X, reduced, subset_size=1000)
+        result['eval_dist_metric'] = eval_dist_metric
+        result['knn'] = knn_score(X, reduced, k=10, metric=eval_dist_metric)
+        result['knc'] = knc_score(X, reduced, dataset['clusters'], k=10, metric=eval_dist_metric) if 'clusters' in dataset else None
+        result['cpd'] = cpd_score(X, reduced, subset_size=1000, metric=eval_dist_metric)
+        result['ari'] = ari_score(X, reduced, dataset['clusters']) if 'clusters' in dataset else None
+        result['pds'] = pds_score(X, reduced, sample_size=1000, metric=eval_dist_metric)
+        result['cs'] = cs_score(X, reduced, dataset['clusters']) if 'clusters' in dataset else None
         results.append(result)
+
+        # plot results
+        fname = Path(args.params).stem + '_' + str(args.dataset) + '_' + \
+            '_'.join(
+                map(lambda s: '{}-{}'.format(*s), p.items())
+            ) + '.png'
+        plt_title = '{} on {} with metric={}'.format(result['algorithm'], result['dataset'], p['metric'])
+        plot_reduced_data(reduced, dataset, fname, plt_title)
 
     df = pd.DataFrame(results)
     df.to_csv('results.csv')
@@ -91,7 +114,7 @@ def main():
     parser.add_argument('--log', choices=['INFO', 'DEBUG', 'WARNING', 'ERROR', 'CRITICAL'], default='INFO', 
         type=str.upper, help='logging level')
     parser.add_argument('-d', '--dataset', type=str, choices=['synthetic', 'pollen', 'mouse-exon', 'ca1-neurons'])
-    parser.add_argument('-a', '--algorithm', type=str, default='pca', choices=['pca', 'tsne', 'umap', 'hsne', 'densne', 'densmap', 'scvis', 'netsne'])
+    parser.add_argument('-a', '--algorithm', type=str, default='pca', choices=['pca', 'lda', 'tsne', 'umap', 'hsne', 'densne', 'densmap', 'scvis', 'netsne'])
     parser.add_argument('-p', '--params', type=str, help='parameters json file')
     parser.add_argument('-o', '--output', help='output csv location')
     args = parser.parse_args()

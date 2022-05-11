@@ -1,0 +1,5 @@
+{
+    "algorithm": ["tsne", "umap", "densmap"],
+    "metric": ["euclidean", "cosine", "hamming", "l1"],
+    "eval_dist_metric": ["euclidean", "cosine", "hamming", "l1"]
+}
