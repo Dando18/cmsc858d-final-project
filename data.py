@@ -119,6 +119,42 @@ def get_ca1_neurons():
     return dataset
 
 
+def get_pollen_dataset():
+    PKL_FPATH = './data/pollen.pkl'
+
+    if os.path.isfile(PKL_FPATH):
+        dataset = pickle.load(open(PKL_FPATH, 'rb'))
+    else:
+        fname = './data/pollen/pollen.csv'
+        counts = pd.read_csv(fname, header=None).transpose()
+
+        ids = []
+        with open('data/pollen/pollen_labels.txt', 'r') as fp:
+            lines = fp.readlines()
+            ids = np.array(list(map(int, lines)))
+
+        colors = np.array(['#ff80ed', '#065535', '#133337', '#ffc0cb', '#008080', '#ffd700', '#00ffff',
+                '#ff7373', '#ffa500', '#0000ff', '#003366', '#00ff00', '#800000', '#800080'])
+
+        clusterColors = colors
+        clusters = np.copy(ids)
+
+        clusters -= 1
+
+        dataset = {'counts': counts, 'genes': None, 'clusters': clusters, 'areas': None, 
+                'clusterColors': clusterColors, 'clusterNames': None,
+                'markerSubset': None}
+        
+        pickle.dump(dataset, open(PKL_FPATH, 'wb'))
+    
+    logging.info('Read data size with size: {}'.format(dataset['counts'].shape))
+    logging.info('Unique clusters: {}'.format(np.unique(dataset['clusters']).size))
+
+    return dataset
+
+
 def get_dataset(name):
     if name == 'mouse-exon':
         return get_mouse_exon_dataset()
+    elif name == 'pollen':
+        return get_pollen_dataset()
