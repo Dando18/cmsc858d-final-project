@@ -45,6 +45,9 @@ def cpd_score(X, Z, subset_size=1000):
     from scipy.stats import spearmanr
     from scipy.spatial.distance import pdist
 
+    if subset_size > X.shape[0]:
+        subset_size = X.shape[0]
+
     subsets = np.random.choice(X.shape[0], size=subset_size, replace=False)
     X_distances = pdist(X[subsets,:])
     Z_distances = pdist(Z[subsets,:])
@@ -86,6 +89,9 @@ def pds_score(X, Z, sample_size=1000):
     from scipy.spatial.distance import pdist
     from scipy.stats import linregress
     from sklearn.metrics import r2_score
+
+    if sample_size > X.shape[0]:
+        sample_size = X.shape[0]-1
 
     points = random.sample(list(zip(X, Z)), sample_size)
     X_points, Z_points = [], []
