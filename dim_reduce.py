@@ -22,17 +22,15 @@ def pca(X):
     return reduced_data
 
 
-def tsne(X, perplexity=30, learning_rate='auto', init='random', metric='euclidean'):
+def tsne(X, perplexity=30, learning_rate='auto', initialization='random', metric='euclidean'):
     ''' Compute the t-SNE dimensionality reduction.
         openTSNE API: https://opentsne.readthedocs.io/en/latest/api/index.html
         metrics:  "cosine", "euclidean", "manhattan", "hamming", "dot", "l1", "l2", "taxicab"
     '''
     from openTSNE import TSNE
-
-    if learning_rate == 'auto':
-        learning_rate = X.shape[0]/12
     
-    model = TSNE(perplexity=perplexity, learning_rate=learning_rate)
+    model = TSNE(perplexity=perplexity, learning_rate=learning_rate, 
+        initialization=initialization, metric=metric)
     reduced_data = model.fit(X)
 
     return reduced_data
@@ -47,6 +45,7 @@ def umap(X, n_neighbors=15, metric='euclidean'):
     reduced_data = model.fit_transform(X)
 
     return reduced_data
+
 
 def densne(X):
     ''' densne API: https://github.com/hhcho/densvis/tree/master/densne
