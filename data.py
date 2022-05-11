@@ -93,7 +93,7 @@ def get_ca1_neurons_dataset():
                 'markerSubset': None}
 
         X = np.array(counts.todense())[0:-1,:]
-        dataset['X'] = X #preprocess(X, normalize=True, subsets=dataset['markerSubset'])
+        dataset['X'] = preprocess(X, normalize=True, subsets=dataset['markerSubset'])
         
         pickle.dump(dataset, open(PKL_FPATH, 'wb'))
     
