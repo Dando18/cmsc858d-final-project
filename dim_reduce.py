@@ -2,7 +2,7 @@ import numpy as np
 
 def get_dim_reduction(X, algorithm='pca', **kwargs):
     algorithm = algorithm.lower()
-    func_map = {'pca': pca, 'tsne': tsne, 'umap': umap, 'densne': densne, 
+    func_map = {'pca': pca, 'lda': lda, 'tsne': tsne, 'umap': umap, 'densne': densne, 
                 'densmap': densmap, 'scvis': scvis, 'netsne': netsne, 'hsne': hsne}
 
     if algorithm in func_map:
@@ -18,6 +18,15 @@ def pca(X):
 
     model = PCA(n_components=2, whiten=False)
     reduced_data = model.fit_transform(X)
+
+    return reduced_data
+
+
+def lda(X, classes=None):
+    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+
+    model = LinearDiscriminantAnalysis(n_components=2)
+    reduced_data = model.fit_transform(X, classes)
 
     return reduced_data
 
@@ -56,7 +65,7 @@ def densne(X):
     sys.path.append('./densvis/densne')
     from densne import run_densne
     
-    reduced_data = run_densne(X, verbose=False, final_dens=False)
+    reduced_data = run_densne(X, verbose=True, final_dens=False)
 
     return reduced_data
 
