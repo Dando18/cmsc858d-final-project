@@ -1,6 +1,7 @@
 *.pyc
 __pycache__
 venv
+scvis-venv
 .ipynb_checkpoints
 
 log.txt
