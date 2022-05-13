@@ -9,6 +9,7 @@ import logging
 import rnaseqTools
 from analysis_tools import preprocess
 
+# Code modified from https://github.com/berenslab/rna-seq-tsne
 def get_mouse_exon_dataset():
     PKL_FPATH = './data/mouse-exon.pkl'
 

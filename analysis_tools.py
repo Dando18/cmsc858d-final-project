@@ -1,5 +1,7 @@
 import numpy as np
 
+
+# Code modified from: https://github.com/berenslab/rna-seq-tsne
 def preprocess(X, normalize=True, subsets=None):
     magnitudes = np.sum(X, axis=1)
     if len(magnitudes.shape) == 1:
