@@ -1,0 +1,5 @@
+{
+    "algorithm": ["densne"],
+    "dens_lambda": [0.1, 1.0, 10.0],
+    "dens_frac": [0.25, 0.5, 0.75]
+}
