@@ -4,6 +4,15 @@ This repo contains the source code for the CMSC 858D final project of Daniel Nic
 The scripts implement many experiments on single-cell RNA-seq dimensionality reduction.
 See below for how to set up and run the code.
 
+- [CMSC 858D Final Project](#cmsc-858d-final-project)
+  - [Install](#install)
+  - [Data sets](#data-sets)
+    - [mouse-exon](#mouse-exon)
+    - [ca1-neurons](#ca1-neurons)
+    - [pollen](#pollen)
+  - [Running](#running)
+  - [Repo Overview](#repo-overview)
+
 ## Install
 First, clone this repo and run `git submodule update --init --recursive` to clone the submodules.
 Then, you need to install the Python dependencies.
@@ -88,3 +97,11 @@ optional arguments:
 
 
 _Note:_ Processing the data sets (particularly _mouse-exon_ and _ca1-neurons_) is quite slow. For this reason we checkpoint the intermediate preprocessed data in a pickle file. The first run for a given data set will be slow, but it should speed up after that.
+
+
+## Repo Overview
+
+The two main files of interest are:
+
+- `dim_reduce.py`: implementations or API calls for all the dimensionality reduction algorithms
+- `metrics.py`: performance metrics used to evaluate embeddings
