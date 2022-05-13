@@ -1,7 +1,7 @@
 # CMSC 858D Final Project
 
 This repo contains the source code for the CMSC 858D final project of Daniel Nichols and Josh Davis.
-The scripts implement many experiments on single-cell RNA-seq dimensionality reduction.
+The scripts implement many experiments for single-cell RNA-seq dimensionality reduction.
 See below for how to set up and run the code.
 
 - [CMSC 858D Final Project](#cmsc-858d-final-project)
@@ -33,13 +33,13 @@ This can be done with the utility script `install-scvis.bash`.
 bash install-scvis.bash
 ```
 
-_Note:_ if you want to run SCVis you need tensorflow <2.0 which requires Python 3.7 or less. If you want to try with tensorflow>=2.0 then you can uncomment the `tf_upgrade_v2` line in `install-scvis.bash`, but I've had varied success with this.
+_Note:_ if you want to run SCVis you need tensorflow <2.0 which requires Python 3.7 or less. If you want to try with tensorflow>=2.0 then you can uncomment the `tf_upgrade_v2` line in `install-scvis.bash`, but I've had varied results with this.
 
 
 Next you need to build the densne binary.
 This is simply
 
-```
+```bash
 cd densvis/densne
 g++ sptree.cpp densne.cpp densne_main.cpp -o den_sne -O2
 cd ../..
@@ -53,12 +53,11 @@ The instructions for obtaining this data is presented below.
 
 ### mouse-exon
 The data is available [here](http://celltypes.brain-map.org/rnaseq).
-
 Direct links to zip files are [here](http://celltypes.brain-map.org/api/v2/well_known_file_download/694413985) and [here](http://celltypes.brain-map.org/api/v2/well_known_file_download/694413179).
 
 You will also need `sample_heatmap_plot_data.csv` from [this interactive browser](http://celltypes.brain-map.org/rnaseq/mouse/v1-alm). Click "Sample Heatmaps" -> "Build Plot" -> "Download as CSV".
 
-All of these files should be placed directly in the `.\data` subdirectory. 
+All of these files should be placed directly in the `./data` subdirectory. 
 
 ### ca1-neurons
 Download the files from [here](https://figshare.com/articles/dataset/Transcriptomic_analysis_of_CA1_inhibitory_interneurons/6198656) and place the contents in `./data/ca1-neurons`.
