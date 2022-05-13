@@ -86,8 +86,8 @@ def run_experiments(X, dataset, args):
         result = p.copy()
         result['dataset'] = args.dataset
         result['algorithm'] = p['algorithm']
-        result['duration'] = duration
         result['eval_dist_metric'] = eval_dist_metric
+        result['duration'] = duration
         result['knn'] = knn_score(X, reduced, k=10, metric=eval_dist_metric)
         result['knc'] = knc_score(X, reduced, dataset['clusters'], k=10, metric=eval_dist_metric) if 'clusters' in dataset else None
         result['cpd'] = cpd_score(X, reduced, subset_size=1000, metric=eval_dist_metric)
@@ -101,7 +101,9 @@ def run_experiments(X, dataset, args):
             '_'.join(
                 map(lambda s: '{}-{}'.format(*s), p.items())
             ) + '.png'
-        plt_title = '{} on {} with metric={}'.format(result['algorithm'], result['dataset'], p['metric'])
+        #plt_title = '{} on {} with metric={}'.format(result['algorithm'], result['dataset'], p['metric'])
+        #plt_title = '{} on {} with lambda={}, f={}'.format(result['algorithm'], result['dataset'], p['dens_lambda'], p['dens_frac'])
+        plt_title = '{} on {} with perplexity={}'.format(result['algorithm'], result['dataset'], p['perplexity'])
         plot_reduced_data(reduced, dataset, fname, plt_title)
 
     df = pd.DataFrame(results)
