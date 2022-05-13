@@ -1,3 +1,6 @@
+'''
+    This code is from https://github.com/berenslab/rna-seq-tsne
+'''
 import numpy as np
 import pylab as plt
 import seaborn as sns
