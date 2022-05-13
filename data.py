@@ -45,6 +45,7 @@ def get_mouse_exon_dataset():
         clusters = np.copy(ids)
 
         indices = np.array([np.where(cells==c)[0][0] for c in goodCells])
+        counts = counts.tocsr()
         counts = counts[indices, :]
 
         areas = (indices < datasets[0][2].size).astype(int)
