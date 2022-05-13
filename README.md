@@ -104,3 +104,10 @@ The two main files of interest are:
 
 - `dim_reduce.py`: implementations or API calls for all the dimensionality reduction algorithms
 - `metrics.py`: performance metrics used to evaluate embeddings
+
+These are the relevant directories for the project:
+
+- `data/`: must be created by the user, this is where the script looks for the input datasets.
+- `figures/`: created by the scipt, this is where the output figures will be placed.
+- `experiments/`: contains the `json` files that specify the experimental paramters, which can be selected using the `-p` option to `main.py`. See the report for details on what these experiments are.
+- `results/`: default location for experiment output csvs, which currently contains example results for the various experiments.
